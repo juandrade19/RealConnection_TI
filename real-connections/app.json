@@ -1,0 +1,39 @@
+{
+  "expo": {
+    "name": "Real Connections",
+    "slug": "connections-real",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/logo2.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/logo2.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "edgeToEdgeEnabled": true
+    },
+    "web": {
+      "favicon": "./assets/logo2.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-font"
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "1e08dc5d-db7b-4e65-a848-4f7d2cb2a4f6"
+      }
+    }
+  }
+}
