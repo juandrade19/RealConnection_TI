@@ -64,7 +64,7 @@ O app está hospedado na plataforma **Expo** e pode ser facilmente testado em di
 - [Expo Go para iOS] (Futuramente)
 
 2. Acesse o link do app no Expo:  
-👉 [**Link do app Real Connection no Expo**](INSIRA_AQUI_O_LINK_DO_APP)
+👉 [**Link do app Real Connection no Expo**](https://connections-real.expo.app/)
 
 3. Abra o Expo Go e escaneie o QR Code do link ou clique no link diretamente pelo celular.  
 
