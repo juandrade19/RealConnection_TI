@@ -1,5 +1,5 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('../config/db'); 
+const sequelize = require('../config/db');
 
 const Usuario = sequelize.define('Usuario', {
   id: {
@@ -13,8 +13,11 @@ const Usuario = sequelize.define('Usuario', {
   },
   email: {
     type: DataTypes.STRING,
-    unique: true,
     allowNull: false,
+    unique: true,
+    validate: {
+      isEmail: true,
+    },
   },
   senha: {
     type: DataTypes.STRING,
@@ -27,7 +30,21 @@ const Usuario = sequelize.define('Usuario', {
   crm: {
     type: DataTypes.STRING,
     allowNull: true,
+    unique: true,
+    validate: {
+      isCrmConsistente(value) {
+        if (this.tipo === 'psicologo' && !value) {
+          throw new Error('CRM é obrigatório para psicólogos.');
+        }
+        if (this.tipo === 'familia' && value) {
+          throw new Error('Usuários do tipo "família" não devem ter CRM.');
+        }
+      }
+    }
   },
+}, {
+  tableName: 'usuarios',
+  timestamps: true,
 });
 
 module.exports = { Usuario };

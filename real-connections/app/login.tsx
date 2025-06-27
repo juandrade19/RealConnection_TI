@@ -7,7 +7,10 @@ import {
   StyleSheet,
   Image,
   Dimensions,
+  ActivityIndicator,
+  Alert,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../context/authContext';
 
@@ -19,47 +22,60 @@ export default function Login() {
   const [senha, setSenha] = useState('');
   const [crm, setCrm] = useState('');
   const [isPsychologist, setIsPsychologist] = useState(false);
+  const [loading, setLoading] = useState(false);
   const { setUser } = useAuth();
 
   const handleLogin = async () => {
-  const loginBody = isPsychologist
-    ? { crm, senha, tipo: 'psicologo' }
-    : { email, senha, tipo: 'familia' };
-  const endpoint = '/usuarios/login';
+    if ((isPsychologist && !crm) || (!isPsychologist && !email) || !senha) {
+      Alert.alert('Atenção', 'Preencha todos os campos.');
+      return;
+    }
 
-  try {
-    const response = await fetch(`https://realconnectionti-production.up.railway.app${endpoint}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(loginBody),
-    });
+    const loginBody = isPsychologist
+      ? { crm, senha, tipo: 'psicologo' }
+      : { email, senha, tipo: 'familia' };
+    const endpoint = '/usuarios/login';
 
-    const data = await response.json();
+    setLoading(true);
 
-    if (response.ok) {
+    try {
+      const response = await fetch(`https://realconnectionti-production.up.railway.app${endpoint}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(loginBody),
+      });
 
-      setUser({
+      const data = await response.json();
+
+      if (response.ok) {
+        if (data.token) {
+          await AsyncStorage.setItem('token', data.token);
+        }
+
+        setUser({
           id: data.id,
           nome: data.nome,
           tipo: data.tipo,
           email: data.email,
           crm: data.crm,
         });
-        
-      alert('Login bem-sucedido!');
-      if (isPsychologist) {
-        router.replace('../tabsPsicologo/home');
+
+        Alert.alert('Sucesso', 'Login bem-sucedido!');
+        if (isPsychologist) {
+          router.replace('../tabsPsicologo/home');
+        } else {
+          router.replace('../tabs/comunidade');
+        }
       } else {
-        router.replace('../tabs/comunidade');
+        Alert.alert('Erro', data.error || 'Erro ao fazer login');
       }
-    } else {
-      alert(data.error || 'Erro ao fazer login');
+    } catch (error) {
+      console.error(error);
+      Alert.alert('Erro', 'Erro na requisição');
+    } finally {
+      setLoading(false);
     }
-  } catch (error) {
-    console.error(error);
-    alert('Erro na requisição');
-  }
-};
+  };
 
   return (
     <View style={styles.container}>
@@ -82,9 +98,11 @@ export default function Login() {
         ) : (
           <TextInput
             style={styles.input}
-            placeholder="Login"
+            placeholder="Email"
             value={email}
             onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
           />
         )}
 
@@ -100,8 +118,14 @@ export default function Login() {
           <Text style={styles.forgot}>Esqueci minha senha</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.button} onPress={handleLogin}>
-          <Text style={styles.buttonText}>Entrar</Text>
+        <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={loading}>
+          {loading ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={styles.buttonText}>
+              {isPsychologist ? 'Entrar como psicólogo' : 'Entrar'}
+            </Text>
+          )}
         </TouchableOpacity>
 
         <TouchableOpacity onPress={() => router.push('/inscricao')}>
@@ -109,7 +133,9 @@ export default function Login() {
         </TouchableOpacity>
 
         <TouchableOpacity onPress={() => setIsPsychologist(!isPsychologist)}>
-          <Text style={styles.link}>Entrar como psicólogo</Text>
+          <Text style={styles.link}>
+            {isPsychologist ? 'Entrar como familiar' : 'Entrar como psicólogo'}
+          </Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -143,7 +169,13 @@ const styles = StyleSheet.create({
     marginTop: -30,
   },
   tagText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
-  subtitle: { color: '#FD814A', fontWeight: '600', fontSize: 18, marginBottom: 12, textAlign: 'center' },
+  subtitle: {
+    color: '#FD814A',
+    fontWeight: '600',
+    fontSize: 18,
+    marginBottom: 12,
+    textAlign: 'center',
+  },
   input: {
     backgroundColor: '#f2f2f2',
     padding: 12,

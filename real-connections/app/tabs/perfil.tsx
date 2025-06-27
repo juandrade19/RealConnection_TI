@@ -22,7 +22,7 @@ export default function Perfil() {
   const params = useLocalSearchParams();
   const router = useRouter();
 
-  const [nomeFamilia, setNomeFamilia] = useState('Família Ferreira');
+  const [nomeFamilia, setNomeFamilia] = useState('Insira o nome');
   const [nomeFamiliaTemp, setNomeFamiliaTemp] = useState('');
   const [modalNomeVisivel, setModalNomeVisivel] = useState(false);
 
@@ -36,24 +36,18 @@ export default function Perfil() {
   const [novoMembro, setNovoMembro] = useState('');
   const [membros, setMembros] = useState<string[]>([]);
 
-  const salvarDados = async () => {
-    try {
-      await AsyncStorage.setItem(
-        'perfilData',
-        JSON.stringify({ nomeFamilia, descricao, fotoPerfil, fotoCapa, galeria, membros })
-      );
-    } catch (e) {
-      console.log('Erro ao salvar dados:', e);
-    }
-  };
-
   const carregarDados = async () => {
     try {
-      const json = await AsyncStorage.getItem('perfilData');
-      if (json) {
-        const data = JSON.parse(json);
-        setNomeFamilia(data.nomeFamilia || 'Família Ferreira');
-        setNomeFamiliaTemp(data.nomeFamilia || 'Família Ferreira');
+      const userJson = await AsyncStorage.getItem('usuarioLogado');
+      if (!userJson) return;
+
+      const usuario = JSON.parse(userJson);
+      const perfilJson = await AsyncStorage.getItem(`perfilData_${usuario.id}`);
+
+      if (perfilJson) {
+        const data = JSON.parse(perfilJson);
+        setNomeFamilia(data.nomeFamilia || 'Insira o nome');
+        setNomeFamiliaTemp(data.nomeFamilia || 'Insira o nome');
         setDescricao(data.descricao || '');
         setDescricaoTemp(data.descricao || '');
         setFotoPerfil(data.fotoPerfil || null);
@@ -61,13 +55,31 @@ export default function Perfil() {
         setGaleria(data.galeria || []);
         setMembros(data.membros || []);
       } else {
-        setMembros([
-          params.nome || 'Usuário Principal',
-          `Dependente (${params.dependente || 'Nome do Dependente'})`,
-        ]);
+        setNomeFamilia('Insira o nome');
+        setDescricao('');
+        setFotoPerfil(null);
+        setFotoCapa(null);
+        setGaleria([]);
+        setMembros(['Insira o nome dos integrantes abaixo']);
       }
     } catch (e) {
       console.log('Erro ao carregar dados:', e);
+    }
+  };
+
+  const salvarDados = async () => {
+    try {
+      const userJson = await AsyncStorage.getItem('usuarioLogado');
+      if (!userJson) return;
+
+      const usuario = JSON.parse(userJson);
+      console.log('Usuário logado:', usuario.id);
+      await AsyncStorage.setItem(
+  `perfilData_${usuario.id}`,
+  JSON.stringify({ nomeFamilia, descricao, fotoPerfil, fotoCapa, galeria, membros })
+);
+    } catch (e) {
+      console.log('Erro ao salvar dados:', e);
     }
   };
 
@@ -110,7 +122,7 @@ export default function Perfil() {
   };
 
   const salvarNomeFamilia = () => {
-    setNomeFamilia(nomeFamiliaTemp.trim() || 'Família Ferreira');
+    setNomeFamilia(nomeFamiliaTemp.trim() || 'Nome da Família');
     setModalNomeVisivel(false);
   };
 
@@ -220,7 +232,7 @@ export default function Perfil() {
         </ScrollView>
       </View>
 
-     
+      {/* Modal para editar nome da família */}
       <Modal visible={modalNomeVisivel} transparent animationType="slide">
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
@@ -244,7 +256,7 @@ export default function Perfil() {
         </View>
       </Modal>
 
-      
+      {/* Modal para editar descrição */}
       <Modal visible={modalVisivel} transparent animationType="slide">
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
@@ -344,7 +356,6 @@ const styles = StyleSheet.create({
   },
   imagemGaleria: { width: 100, height: 100, borderRadius: 8, marginRight: 8 },
   semImagem: { color: '#999' },
-
   modalContainer: {
     flex: 1,
     justifyContent: 'center',

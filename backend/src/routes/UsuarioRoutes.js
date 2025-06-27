@@ -10,5 +10,6 @@ router.post('/login', usuarioController.login);
 router.get('/', autenticar, usuarioController.listarUsuarios);
 router.get('/:id', autenticar, usuarioController.buscarUsuarioPorId);
 router.delete('/:id', autenticar, usuarioController.excluirUsuario);
+router.get('/perfil', autenticar, usuarioController.perfilUsuario);
 
 module.exports = router;

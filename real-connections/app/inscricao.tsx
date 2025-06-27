@@ -44,7 +44,7 @@ export default function Inscricao() {
     setLoading(true);
 
     try {
-      const response = await fetch('https://realconnectionpi-production.up.railway.app/usuarios/registrar', {
+      const response = await fetch('https://realconnectionti-production.up.railway.app/usuarios/registrar', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

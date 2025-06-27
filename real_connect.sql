@@ -16,6 +16,37 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
+-- Table structure for table `amizades`
+--
+
+DROP TABLE IF EXISTS `amizades`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `amizades` (
+  `id` char(36) NOT NULL,
+  `solicitante_id` char(36) NOT NULL,
+  `solicitado_id` char(36) NOT NULL,
+  `status` enum('pendente','aceita','recusada') DEFAULT 'pendente',
+  `criado_em` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `solicitante_id` (`solicitante_id`),
+  KEY `solicitado_id` (`solicitado_id`),
+  CONSTRAINT `amizades_ibfk_1` FOREIGN KEY (`solicitante_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `amizades_ibfk_2` FOREIGN KEY (`solicitado_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `chk_amizade` CHECK ((`solicitante_id` <> `solicitado_id`))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `amizades`
+--
+
+LOCK TABLES `amizades` WRITE;
+/*!40000 ALTER TABLE `amizades` DISABLE KEYS */;
+/*!40000 ALTER TABLE `amizades` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `atividades`
 --
 
@@ -197,9 +228,15 @@ CREATE TABLE `usuarios` (
   `crm` varchar(255) DEFAULT NULL,
   `createdAt` datetime NOT NULL,
   `updatedAt` datetime NOT NULL,
+  `nome_familia` varchar(100) DEFAULT NULL,
+  `descricao` text,
+  `foto_perfil` text,
+  `foto_capa` text,
   PRIMARY KEY (`id`),
   UNIQUE KEY `email` (`email`),
   UNIQUE KEY `email_2` (`email`),
+  UNIQUE KEY `unique_email` (`email`),
+  UNIQUE KEY `unique_crm` (`crm`),
   CONSTRAINT `chk_crm_tipo` CHECK ((((`tipo` = _utf8mb4'psicologo') and (`crm` is not null)) or ((`tipo` = _utf8mb4'familia') and (`crm` is null))))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -210,7 +247,7 @@ CREATE TABLE `usuarios` (
 
 LOCK TABLES `usuarios` WRITE;
 /*!40000 ALTER TABLE `usuarios` DISABLE KEYS */;
-INSERT INTO `usuarios` VALUES ('1b11cb6e-82ee-49ff-a40a-9080a46eddd2','gabriel','robertinho@example.com','senha123','familia',NULL,'2025-05-16 21:46:12','2025-05-16 21:46:12'),('543b23e4-63d2-4f3f-8bd5-65545887a317','João Gabriel Ferreira Mendes','bielgagg94@gmail.com','muba4393','familia',NULL,'2025-05-16 22:03:36','2025-05-16 22:03:36');
+INSERT INTO `usuarios` VALUES ('1b11cb6e-82ee-49ff-a40a-9080a46eddd2','gabriel','robertinho@example.com','senha123','familia',NULL,'2025-05-16 21:46:12','2025-05-16 21:46:12',NULL,NULL,NULL,NULL),('543b23e4-63d2-4f3f-8bd5-65545887a317','João Gabriel Ferreira Mendes','bielgagg94@gmail.com','muba4393','familia',NULL,'2025-05-16 22:03:36','2025-05-16 22:03:36',NULL,NULL,NULL,NULL);
 /*!40000 ALTER TABLE `usuarios` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -223,4 +260,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-05-16 20:19:29
+-- Dump completed on 2025-06-26 22:00:08
