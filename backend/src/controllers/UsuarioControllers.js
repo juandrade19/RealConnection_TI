@@ -4,12 +4,7 @@ const jwt = require('jsonwebtoken');
 const { ValidationError, UniqueConstraintError } = require('sequelize');
 const bcrypt = require('bcrypt');
 
-
 const JWT_SECRET = process.env.JWT_SECRET || 'segredo_super_secreto';
-
-
-const senhaHash = await bcrypt.hash(senha, 10);
-
 
 const criarUsuario = async (req, res) => {
   const { nome, email, senha, tipo, crm } = req.body;
@@ -24,14 +19,16 @@ const criarUsuario = async (req, res) => {
       return res.status(400).json({ error: 'Usuários do tipo "família" não devem ter CRM.' });
     }
 
+    const senhaHash = await bcrypt.hash(senha, 10);
+
     const usuario = await Usuario.create({
-  id: uuidv4(),
-  nome,
-  email,
-  senha: senhaHash,
-  tipo,
-  crm: tipo === 'psicologo' ? crm : null
-});
+      id: uuidv4(),
+      nome,
+      email,
+      senha: senhaHash,
+      tipo,
+      crm: tipo === 'psicologo' ? crm : null
+    });
 
     res.status(201).json(usuario);
   } catch (error) {
@@ -54,7 +51,6 @@ const login = async (req, res) => {
   try {
     let usuario;
 
-    // Validação de tipo obrigatório
     if (!tipo || !['familia', 'psicologo'].includes(tipo)) {
       return res.status(400).json({ error: 'Tipo de usuário inválido ou ausente.' });
     }
@@ -98,8 +94,6 @@ const login = async (req, res) => {
     res.status(500).json({ error: 'Erro ao realizar login.', detalhes: error.message });
   }
 };
-
-
 
 const perfilUsuario = async (req, res) => {
   try {
